@@ -1,0 +1,128 @@
+use mavenmovies;
+
+-- Q 1
+SELECT * FROM information_schema.key_column_usage;
+
+-- primary key : primary key is when you dedicate a column to 
+-- a table which can be not null and have to be unique that is 
+-- caled primary key.
+
+-- Foreign key: foreign key is common columns between two tables
+-- which is used to join the two tables. a common table to 
+-- establish a	connection between two tables.
+
+
+-- Q 2
+select * from actor;	
+-- Q 3
+select * from customer;
+-- Q 4
+select country from country;
+-- Q 5
+select * from customer;
+select first_name,last_name,email from customer where active = 1;
+-- Q 6
+select * from rental;
+select rental_id from rental where customer_id = 1;
+-- Q 7
+select * from film;
+select title, rental_duration from film where rental_duration > 5;
+-- Q 8
+select * from film;
+select count(title)  from film where replacement_cost > 15 and replacement_cost < 20;
+-- Q 9
+select * from actor;
+select count(distinct(first_name)) from actor;
+-- Q 10
+select * from customer limit 10;
+-- Q 11
+select * from customer;
+select first_name as name from customer where first_name like "b%" limit 3;
+-- Q 12
+select * from film;
+select title,rating from film where rating = "G" limit 5;
+
+-- Q 13
+select * from customer;
+select first_name from customer where first_name like "a%";
+-- Q 14
+select first_name from customer where first_name like "%a";
+-- Q 15
+select * from city;
+select city from city where city like "a%a" limit  4;
+-- Q 16
+select * from customer;
+select first_name from customer where first_name like "%ni%";
+-- Q 17
+select first_name from customer where first_name like "_r%";
+-- Q 18
+select first_name from customer where first_name like "a_____%";
+-- Q 19
+select first_name from customer where first_name like "a%o";
+-- Q 20
+select * from film;
+select film_id, title from film where rating in ("pg", 'pg-13');
+-- Q 21
+select film_id, title from film where length between 50 and  100;
+-- Q 22
+select * from actor;
+select actor_id, first_name, last_name from actor limit 50;
+-- Q 23
+select * from inventory;
+select distinct(film_id) from inventory;
+-- Q 3
+select * from customer;
+-- Q 4
+select country from country;
+-- Q 5
+select * from customer;
+select first_name,last_name,email from customer where active = 1;
+-- Q 6
+select * from rental;
+select rental_id from rental where customer_id = 1;
+-- Q 7
+select * from film;
+select title, rental_duration from film where rental_duration > 5;
+-- Q 8
+select * from film;
+select count(title)  from film where replacement_cost > 15 and replacement_cost < 20;
+-- Q 9
+select * from actor;
+select count(distinct(first_name)) from actor;
+-- Q 10
+select * from customer limit 10;
+-- Q 11
+select * from customer;
+select first_name as name from customer where first_name like "b%" limit 3;
+-- Q 12
+select * from film;
+select title,rating from film where rating = "G" limit 5;
+
+-- Q 13
+select * from customer;
+select first_name from customer where first_name like "a%";
+-- Q 14
+select first_name from customer where first_name like "%a";
+-- Q 15
+select * from city;
+select city from city where city like "a%a" limit  4;
+-- Q 16
+select * from customer;
+select first_name from customer where first_name like "%ni%";
+-- Q 17
+select first_name from customer where first_name like "_r%";
+-- Q 18
+select first_name from customer where first_name like "a_____%";
+-- Q 19
+select first_name from customer where first_name like "a%o";
+-- Q 20
+select * from film;
+select film_id, title from film where rating in ("pg", 'pg-13');
+-- Q 21
+select film_id, title from film where length between 50 and  100;
+-- Q 22
+select * from actor;
+select actor_id, first_name, last_name from actor limit 50;
+-- Q 23
+select * from inventory;
+select distinct(film_id) from inventory;
