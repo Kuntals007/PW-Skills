@@ -1,0 +1,115 @@
+-- BASIC AGGREGATE FUNCTIONS:-
+-- Q 1
+select * from rental;
+select count(rental_id) from rental;
+-- Q 2
+select * from rental;
+select avg(datediff(return_date, rental_date)) as avg_rentalday from rental;
+-- STRING FUNCTIONS:-
+-- Q 3
+select * from customer;
+select upper(first_name), upper(last_name) from customer;
+-- Q 4
+select * from rental;
+select rental_id, month(rental_date) from rental;
+-- GROUP BY:-
+-- Q 5
+select * from rental;
+select customer_id, count(rental_id) from rental group by customer_id;
+-- Q 6
+select * from payment;
+select * from store;
+select staff_id, sum(amount) from payment group by staff_id;
+
+-- JOINS
+
+-- Q 7
+select * from film;
+select * from inventory;
+select * from rental;
+select * from customer;
+
+select first_name, last_name, f.title from customer as c inner join 
+rental as r on c.customer_id = r.customer_id inner join
+inventory as i on i.inventory_id = r.inventory_id inner join
+film as f on i.film_id = f.film_id;
+
+-- Q 8
+select * from film_actor;
+select * from film;
+select * from actor;
+
+select first_name, last_name from actor as a inner join
+film_actor as fa on a.actor_id = fa.actor_id inner join
+film as f on fa.film_id = f.film_id where title = 'Gone With The Wind';
+
+select title from film where title like 'Gone%';-- for confirming the answer
+
+-- GROUP BY
+
+-- Q 1
+select * from category;
+select * from film_category;
+-- select * from film;
+select * from inventory;
+select * from rental;
+
+select count(rental_id) as total_rentals, c.name as film_category from rental as r inner join
+inventory as i on i.inventory_id = r.inventory_id inner join
+film_category as fc on fc.film_id = i.film_id inner join
+category as c on c.category_id = fc.category_id group by c.name;
+
+-- Q 2
+select * from film;
+select * from language;
+
+select avg(rental_rate), l.name as language from film as f inner join
+language as l on l.language_id = f.language_id group by l.name;
+
+select language_id from film where language_id = '2'; -- for confirming the answer
+
+-- JOINS
+-- Q 3
+select * from customer;-- first & last name, customer id
+select * from payment;-- rentalid & customer id, amount
+select * from rental;-- rental id, customer id
+
+select avg(amount) as avg_amount, concat(c.first_name,"  ", c.last_name) as Name, c.customer_id from 
+payment as p inner join customer as c on p.customer_id = c.customer_id group by c.customer_id;
+
+-- Q 4
+select * from customer;-- customer_id & Address_id
+select * from city;-- city_id & country_id
+select * from address;-- adress_id & city_id
+select * from rental;-- rental_id & customer_id & inventory_id
+select * from inventory;-- inventory_id & film_id
+select * from film;-- film_id
+
+select distinct concat(c.first_name, " ", c.last_name) as Name, city.city from film as f inner join
+inventory as i on i.film_id = f.film_id inner join
+rental as r on r.inventory_id = i.inventory_id inner join
+customer as c on c.customer_id = r.customer_id inner join
+address as a on a.address_id = c.address_id inner join
+city on city.city_id = a.city_id where city.city= 'london';  -- (group by city) is not working (error-1055)
+
+-- Advanced Joins and GROUP BY:
+-- Q 5
+select * from film;
+select * from inventory;
+select * from rental;
+
+select count(rental_id) as total_rental, f.title as movie_name  from rental as r inner join
+inventory as i on i.inventory_id = r.inventory_id inner join
+film as f on f.film_id = i.film_id group by f.film_id order by total_rental desc limit 5;
+
+-- Q 6
+select * from rental;
+select * from inventory;
+select * from customer;
+
+select concat(first_name, " ", last_name) as customer_name, c.store_id from customer as c inner join
+inventory as i on i.store_id = c.store_id inner join
+rental as r on r.inventory_id = i.inventory_id 
+where c.store_id in (1,2)
+group by customer_name;-- group by is not working (error-1055)
+-- having count(distinct c.store_id) = 2; 
