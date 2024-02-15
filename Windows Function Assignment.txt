@@ -1,0 +1,157 @@
+use mavenmovies;
+
+-- Assignment Windows Function
+
+-- Q 1 
+select * from rental; -- rental, inventory, customer id
+select * from inventory; -- inventory, film, store id
+select * from film; -- film, language id
+
+select r.customer_id, sum(f.rental_rate)  as total_amount, 
+rank() over (order by sum(f.rental_rate)desc) as customer_rank
+from rental as r
+join inventory as i on r.inventory_id = i.inventory_id
+join film as f on i.film_id = f.film_id
+group by r.customer_id;
+
+-- Q 2
+select * from film; -- film_id
+select * from inventory; -- inventory, film id
+select * from payment; -- payment_id, customer_id,rental_id
+select * from rental; -- rental, customer_id, inventory id
+
+select f.film_id, f.title, p.payment_date, p.amount,
+sum(p.amount) over(partition by f.film_id order by p.payment_date) as running_total
+from payment as p
+join rental as r on p.rental_id = r.rental_id
+join inventory as i on r.inventory_id = i.inventory_id
+join film as f on i.film_id = f.film_id;
+
+-- Q 3 
+select * from film;
+
+select film_id, title, length, avg(rental_duration) over(partition by length order by length) as length_wise_avg_rental_duration,
+avg(rental_duration) over() as avg_rental_duration from film;
+
+-- Q 4
+select * from rental; -- rental, inventory, customer id
+select * from inventory; -- inventory, film, store id
+select * from film; -- film, language id
+select * from film_category; -- film, category id
+select * from category; -- category id
+
+
+select fr.film_id, fr.category_id, fr.title, fr.name, fr.film_rank
+from
+(select f.film_id, f.category_id, f.title, f.name,
+       dense_rank() over (partition by f.name order by total_rental_count desc) as film_rank
+from 
+  (select distinct count(r.rental_id) over(partition by ca.name order by f.film_id) as total_rental_count,
+                 f.film_id, ca.category_id, f.title, ca.name
+  from rental as r
+  join inventory as i on r.inventory_id = i.inventory_id
+  join film as f on i.film_id = f.film_id
+  join film_category as fc on f.film_id = fc.film_id
+  join category as ca on fc.category_id = ca.category_id) as f
+  order by f.category_id) as fr
+where film_rank <= 3
+order by  fr.name;
+
+
+-- Q 5
+
+select * from rental;-- rental,customer id
+select * from customer; -- customer id
+
+select
+    customer_id, total_rental_count, avg(total_rental_count) over() AS average_rental, 
+   total_rental_count -  avg(total_rental_count) over() as rental_difference
+from (select customer_id,count(rental_id) as total_rental_count
+from rental
+group by customer_id
+) as customer_counts
+group by customer_id;
+
+-- Q 6
+
+select * from staff; -- store, staff id
+select * from payment; -- payment, rental id, staff id
+
+select distinct s.store_id, month(p.payment_date) as payment_month ,
+sum(p.amount) over(partition by s.store_id order by month(p.payment_date)) as revenue_month_wise
+from payment as p
+join staff as s on p.staff_id = s.staff_id
+;
+
+-- Q 7
+
+
+
+-- Q 8
+
+select * from rental; -- rental, inventory, customer id
+select * from payment; -- payment, customer, rental id
+select * from inventory; -- film, inventory id
+select * from category; -- category id
+select * from film; -- film, 
+select * from film_category; -- film, category id
+
+select abc.category_id, abc.name, abc.rentel_count_category_wise,
+sum(abc.total_rental_ordered_by_rental_count) over(order by abc.rentel_count_category_wise) as running_total
+from
+(select distinct xyz.category_id, xyz.name, xyz.rentel_count_category_wise,
+sum(xyz.amount) over(partition by xyz.category_id order by xyz.rentel_count_category_wise) as total_rental_ordered_by_rental_count
+from
+(select ca.category_id, ca.name, p.amount,
+count(r.rental_id) over(partition by ca.category_id) as rentel_count_category_wise
+from payment as p
+join rental as r on p.rental_id = r.rental_id
+join inventory as i on r.inventory_id = i.inventory_id
+join film_category as fc on i.film_id = fc.film_id
+join category as ca on fc.category_id = ca.category_id) as xyz
+order by xyz.rentel_count_category_wise) as abc;
+
+
+
+
+-- Q 9
+
+select * from rental; -- rental, inventory, customer id
+select * from inventory; -- film, inventory id
+select * from category; -- category id
+select * from film; -- film,
+select * from film_category; -- film, category id
+
+select r.title, r.name, r.total_rental_count, r.avg_rental_count
+from
+(select rc.title, rc.name, rc.total_rental_count, 
+avg(rc.total_rental_count) over(partition by rc.name) as avg_rental_count
+from
+(select distinct f.title, ca.name, count(r.rental_id) over(partition by f.title) as total_rental_count
+from rental as r
+join  inventory as i on r.inventory_id = i.inventory_id
+join film as f on i.film_id = f.film_id
+join film_category as fc on f.film_id = fc.film_id
+join category as ca on fc.category_id = ca.category_id
+order by ca.name) as rc) as r
+where r.total_rental_count < r.avg_rental_count;
+
+
+-- Q 10
+
+select * from payment;
+
+select mr.revenue, mr.month, 
+dense_rank() over(order by mr.revenue desc) as highest_revenue_month_wise
+from
+(select sum(amount) as revenue, month(payment_date) as month from payment
+group by month(payment_date)) as mr;
+
+
+
+
+
+
+
+
+
