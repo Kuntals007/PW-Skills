@@ -1,0 +1,206 @@
+-- Q 1
+
+The table that violates the 1st NF is "actor_info", because in this "actor_info" thble there is a column 'film_info'
+that contains multiple attributes in a single row that is violating the first rule of 1st NF.
+
+SOLUTION...
+We can make 3 tables from this one table to solve the problem. the tables are "actor_info", "film_category" and "film_name". 
+And then we can separate the film names in "film_name" table and create a primary key'film_id'.
+separate the unique film categories in "film_category" table and create a primary key 'category_id'.
+and lastly separate actors name with their id as primary key in "actor_info" table.
+
+then because one actor can work in many films so we have to make a reference table like "film_actor" in this table there will be no primary key with just 3 columns 'actor_id' & 'film_id' & 'category_id' so then we can join tihis table with any of those table and search -- what are the films an actor worked for and the film is in which category..?--
+
+-- Q 2
+
+I am unable to find any table which is violating the 2nd NF..
+
+
+-- Q 3
+
+I think the table "customer_list" violates the 3rd NF. The main rule of 3rd NF is no transitive dependency.
+in this table 'city' & 'country' is dependent on each other..
+
+so to solve this problem we can make a new table "city" with a primary key 'city_id'
+and a table called "country" with a primary key 'country_id'
+
+now because one country has many cities so we can add column 'country_id' in "city" table to join these tables
+and in the main table "customer_list" instead of the name of the cities and countries we can put the ID numbers.
+
+so now if we update or delete any of the customers data the city & countries data will be intact.
+
+
+-- Q 4
+
+
+No table is there that can go up to 2nd NF, and those tables that can be normalized is up there.
+
+
+-- Q 5
+
+select * from actor;
+select* from film_actor;
+
+with actor_name as(
+select actor_id, concat(first_name, " ",last_name) as name from actor
+),
+film_count as(
+select actor_id, count(film_id) as total_films from film_actor
+group by actor_id
+)
+select an.name, fc.total_films
+from actor_name as an
+join film_count as fc on an.actor_id = fc.actor_id;
+
+
+-- Q 7
+
+select * from film;
+select * from language;
+
+with film_info as (
+select f.title, l.name, f.rental_rate 
+from film as f
+join language as l on f.language_id = l.language_id
+)
+select * from film_info;
+
+-- Q 8
+
+select * from customer;
+select * from payment;
+
+with total_revenue as (
+select customer_id, sum(amount) as amount
+from payment
+group by customer_id
+),
+customer_name as (
+select customer_id, concat(first_name, " ", last_name) as full_name
+from customer
+)
+select cn.full_name, tr.amount
+from total_revenue as tr
+join customer_name as cn 
+on tr.customer_id = cn.customer_id;
+
+-- Q 9
+select * from film;
+
+with film_rank as(
+select title,rental_duration, 
+dense_rank() over(order by rental_duration desc) as film_rank_by_rental_duration from film
+)
+
+select * from film_rank;
+
+
+-- Q 10
+
+
+select * from rental;
+select * from customer;
+
+with total_rental as(
+select distinct customer_id, 
+count(rental_id) over(partition by customer_id) as rental_per_customer
+from rental
+),
+rental_customer_wise as(
+select customer_id, rental_per_customer from total_rental
+where rental_per_customer > 20
+),
+
+customer_details as(
+select rcw.rental_per_customer,c.*
+from customer as c
+join rental_customer_wise as rcw 
+on rcw.customer_id = c.customer_id
+)
+
+select * from customer_details;
+
+
+-- Q 11
+
+select * from rental;
+
+with month_wise_rental as(
+select month(rental_date) as month, 
+count(rental_id) over(partition by month(rental_date)) month_wise_rentals
+from rental
+)
+
+select distinct * from month_wise_rental;
+
+
+-- Q 12
+
+
+select * from payment;
+
+with payment_type as(
+select customer_id,
+sum( case when paymentmethod = "bank_transfer" then amount else 0 end) as bank_transfer,
+sum( case when paymentmethod = "coupon" then amount else 0 end) as cupon,
+sum( case when paymentmethod = "credit_card" then amount else 0 end) as credit_card,
+sum( case when paymentmethod = "gift_card" then amount else 0 end) as gift_card
+from payment
+group by customer_id
+)
+select * from payment_type;
+
+-- there is no column like "payment_method" in the "payment" table, but if it was there this would be my answer to "show total amount spend by customers by different payment methods in sepperate columns". --
+
+
+-- Q 14
+select * from staff;
+
+with recursive empCTE as(
+select emp_id, emp_name, manager_id
+from staff
+where emp_id = " " -- the last emp_id from table into that space
+
+union all
+
+select s.emp_id, s.emp_name, s.manager_id
+from staff as s
+join empCTE as e
+on  s.emp_id = e.manager_id 
+)
+
+select * from empCTE;
+
+-- here is also no "manager_id" in this table. I created this just bu thinking it was there. --
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
